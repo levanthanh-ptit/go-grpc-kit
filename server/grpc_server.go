@@ -40,6 +40,12 @@ func (s *GrpcServer) WithPort(port string) *GrpcServer {
 	return s
 }
 
+// WithGprpcRegister add host
+func (s *GrpcServer) WithGprpcRegister(handler RegisterGrpcFunc) *GrpcServer {
+	s.gprpcRegisterHandler = handler
+	return s
+}
+
 // registerGrpc attach gRPC
 func (s *GrpcServer) registerGrpc() {
 	s.gprpcRegisterHandler(s.server)
