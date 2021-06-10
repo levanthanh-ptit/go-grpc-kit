@@ -14,6 +14,7 @@ type GrpcGetwayServer struct {
 	host string
 	port string
 
+	gwmux   *runtime.ServeMux
 	handler http.Handler
 	server  *http.Server
 }
@@ -23,6 +24,7 @@ func NewGrpcGetwayServer(name string) *GrpcGetwayServer {
 	gwmux := runtime.NewServeMux()
 	return &GrpcGetwayServer{
 		name:    name,
+		gwmux:   gwmux,
 		handler: gwmux,
 	}
 }
@@ -62,13 +64,13 @@ func (s *GrpcGetwayServer) WithChainHandler(handlerFuncs []AddHandlerFunc) *Grpc
 }
 
 // RegisterGrpcClient attach gRPC
-func (s *GrpcGetwayServer) RegisterGrpcClient() {
-	log.Fatalln("Must register an gRPC client")
+func (s *GrpcGetwayServer) RegisterGrpcClient(gwmux *runtime.ServeMux) {
+	log.Fatalln("Must implement RegisterGrpcClient")
 }
 
 // makeServer prepare gRPC server
 func (s *GrpcGetwayServer) makeServer() {
-	s.RegisterGrpcClient()
+	s.RegisterGrpcClient(s.gwmux)
 	s.server = &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", s.host, s.port),
 		Handler: s.handler,
