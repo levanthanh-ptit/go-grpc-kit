@@ -53,6 +53,7 @@ func (s *GrpcGetwayServer) makeServer() {
 
 // Server run server
 func (s *GrpcGetwayServer) Server() {
+	s.makeServer()
 	log.Printf("User gRPC-Gateway - Started on http://%s:%s", s.host, s.port)
 	log.Fatalln(s.server.ListenAndServe())
 }
