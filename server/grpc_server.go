@@ -53,6 +53,7 @@ func (s *GrpcServer) ServerTCP() {
 	if err != nil {
 		log.Fatalln("User gRPC - Failed to listen:", err)
 	}
+	s.makeServer()
 	log.Printf("User gRPC - Started on %s:%s", s.host, s.port)
 	log.Fatalln(s.server.Serve(lis))
 }
