@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 )
 
 // GrpcGetwayServer server object
@@ -14,14 +14,16 @@ type GrpcGetwayServer struct {
 	host string
 	port string
 
-	gwmux  *runtime.ServeMux
-	server *http.Server
+	handler http.Handler
+	server  *http.Server
 }
 
 // NewGrpcGetwayServer constructor
 func NewGrpcGetwayServer(name string) *GrpcGetwayServer {
+	gwmux := runtime.NewServeMux()
 	return &GrpcGetwayServer{
-		name: name,
+		name:    name,
+		handler: gwmux,
 	}
 }
 
@@ -37,6 +39,28 @@ func (s *GrpcGetwayServer) WithPort(port string) *GrpcGetwayServer {
 	return s
 }
 
+// GetServer getter
+func (s *GrpcGetwayServer) GetServer() *http.Server {
+	return s.server
+}
+
+// AddHandlerFunc type for add handler
+type AddHandlerFunc func(http.Handler) http.Handler
+
+// WithHandler add handler
+func (s *GrpcGetwayServer) WithHandler(handlerFunc AddHandlerFunc) *GrpcGetwayServer {
+	s.handler = handlerFunc(s.handler)
+	return s
+}
+
+// WithChainHandler add handler
+func (s *GrpcGetwayServer) WithChainHandler(handlerFuncs []AddHandlerFunc) *GrpcGetwayServer {
+	for _, handlerFunc := range handlerFuncs {
+		s.handler = handlerFunc(s.handler)
+	}
+	return s
+}
+
 // RegisterGrpcClient attach gRPC
 func (s *GrpcGetwayServer) RegisterGrpcClient() {
 	log.Fatalln("Must register an gRPC client")
@@ -47,7 +71,7 @@ func (s *GrpcGetwayServer) makeServer() {
 	s.RegisterGrpcClient()
 	s.server = &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", s.host, s.port),
-		Handler: s.gwmux,
+		Handler: s.handler,
 	}
 }
 
