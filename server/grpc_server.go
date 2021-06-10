@@ -8,11 +8,15 @@ import (
 	"google.golang.org/grpc"
 )
 
+type RegisterGrpcFunc func(server *grpc.Server)
+
 // GrpcServer server object
 type GrpcServer struct {
 	name string
 	host string
 	port string
+
+	gprpcRegisterHandler RegisterGrpcFunc
 
 	server *grpc.Server
 }
@@ -36,15 +40,15 @@ func (s *GrpcServer) WithPort(port string) *GrpcServer {
 	return s
 }
 
-// RegisterGrpc attach gRPC
-func (s *GrpcServer) RegisterGrpc() {
-	log.Fatalln("Must register an gRPC server")
+// registerGrpc attach gRPC
+func (s *GrpcServer) registerGrpc() {
+	s.gprpcRegisterHandler(s.server)
 }
 
 // makeServer prepare gRPC server
 func (s *GrpcServer) makeServer() {
 	s.server = grpc.NewServer()
-	s.RegisterGrpc()
+	s.registerGrpc()
 }
 
 // ServerTCP run server in TCP
