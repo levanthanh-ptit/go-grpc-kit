@@ -8,11 +8,16 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 )
 
+// ClientRegisterFunc ...
+type ClientRegisterFunc func(gwmux *runtime.ServeMux)
+
 // GrpcGetwayServer server object
 type GrpcGetwayServer struct {
 	name string
 	host string
 	port string
+
+	clientRegisterHandler ClientRegisterFunc
 
 	gwmux   *runtime.ServeMux
 	handler http.Handler
@@ -41,6 +46,12 @@ func (s *GrpcGetwayServer) WithPort(port string) *GrpcGetwayServer {
 	return s
 }
 
+// WithClientRegister add client register handler
+func (s *GrpcGetwayServer) WithClientRegister(handler ClientRegisterFunc) *GrpcGetwayServer {
+	s.clientRegisterHandler = handler
+	return s
+}
+
 // GetServer getter
 func (s *GrpcGetwayServer) GetServer() *http.Server {
 	return s.server
@@ -63,14 +74,17 @@ func (s *GrpcGetwayServer) WithChainHandler(handlerFuncs []AddHandlerFunc) *Grpc
 	return s
 }
 
-// RegisterGrpcClient attach gRPC
-func (s *GrpcGetwayServer) RegisterGrpcClient(gwmux *runtime.ServeMux) {
-	log.Fatalln("Must implement RegisterGrpcClient")
+// registerGrpcClient attach gRPC
+func (s *GrpcGetwayServer) registerGrpcClient() {
+	if s.clientRegisterHandler == nil {
+		log.Fatalln("Must implement clientRegisterHandler")
+	}
+	s.clientRegisterHandler(s.gwmux)
 }
 
 // makeServer prepare gRPC server
 func (s *GrpcGetwayServer) makeServer() {
-	s.RegisterGrpcClient(s.gwmux)
+	s.registerGrpcClient()
 	s.server = &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", s.host, s.port),
 		Handler: s.handler,
