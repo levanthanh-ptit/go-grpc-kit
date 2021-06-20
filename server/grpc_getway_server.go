@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,7 +10,7 @@ import (
 )
 
 // ClientRegisterFunc ...
-type ClientRegisterFunc func(gwmux *runtime.ServeMux)
+type ClientRegisterFunc func(gwmux *runtime.ServeMux) error
 
 // GrpcGetwayServer server object
 type GrpcGetwayServer struct {
@@ -60,14 +61,14 @@ func (s *GrpcGetwayServer) GetServer() *http.Server {
 // AddHandlerFunc type for add handler
 type AddHandlerFunc func(http.Handler) http.Handler
 
-// WithHandler add handler
-func (s *GrpcGetwayServer) WithHandler(handlerFunc AddHandlerFunc) *GrpcGetwayServer {
+// WithHTTPHandler add handler
+func (s *GrpcGetwayServer) WithHTTPHandler(handlerFunc AddHandlerFunc) *GrpcGetwayServer {
 	s.handler = handlerFunc(s.handler)
 	return s
 }
 
-// WithChainHandler add handler
-func (s *GrpcGetwayServer) WithChainHandler(handlerFuncs []AddHandlerFunc) *GrpcGetwayServer {
+// WithChainHTTPHandler add handler
+func (s *GrpcGetwayServer) WithChainHTTPHandler(handlerFuncs []AddHandlerFunc) *GrpcGetwayServer {
 	for _, handlerFunc := range handlerFuncs {
 		s.handler = handlerFunc(s.handler)
 	}
@@ -75,25 +76,35 @@ func (s *GrpcGetwayServer) WithChainHandler(handlerFuncs []AddHandlerFunc) *Grpc
 }
 
 // registerGrpcClient attach gRPC
-func (s *GrpcGetwayServer) registerGrpcClient() {
+func (s *GrpcGetwayServer) registerGrpcClient() (err error) {
 	if s.clientRegisterHandler == nil {
-		log.Fatalln("Must implement clientRegisterHandler")
+		err = errors.New("must implement client register handler")
+		return
 	}
-	s.clientRegisterHandler(s.gwmux)
+	err = s.clientRegisterHandler(s.gwmux)
+	return
 }
 
 // makeServer prepare gRPC server
-func (s *GrpcGetwayServer) makeServer() {
-	s.registerGrpcClient()
+func (s *GrpcGetwayServer) makeServer() (err error) {
+	err = s.registerGrpcClient()
+	if err != nil {
+		return
+	}
 	s.server = &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", s.host, s.port),
 		Handler: s.handler,
 	}
+	return
 }
 
-// Server run server
-func (s *GrpcGetwayServer) Server() {
-	s.makeServer()
-	log.Printf("User gRPC-Gateway - Started on http://%s:%s", s.host, s.port)
-	log.Fatalln(s.server.ListenAndServe())
+// Serve run server
+func (s *GrpcGetwayServer) Serve() (err error) {
+	err = s.makeServer()
+	if err != nil {
+		return
+	}
+	log.Printf("%s gRPC Gateway - Started on %s:%s", s.name, s.host, s.port)
+	err = s.server.ListenAndServe()
+	return
 }
