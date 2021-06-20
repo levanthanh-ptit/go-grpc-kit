@@ -37,13 +37,13 @@ An lightweight `gRPC Getway` for embeding to lift off declaring basic of gRPC ge
 - `handler`: An `http.Handler` HTTP handler, commonly to add middleware.
 - `server`: An `http.Server` object.
 
-### `GrpcServer` decorators methods
+### `GrpcGetwayServer` decorators methods
 
 - `WithHost`
 - `WithPort`
 - `WithHTTPHandler`: To add an HTTP hadler to server.
 - `WithChainHTTPHandler`: To add mutiple HTTP hadlers to server.
 
-### `GrpcServer` methods
+### `GrpcGetwayServer` methods
 
 - `Serve`: start the server.
