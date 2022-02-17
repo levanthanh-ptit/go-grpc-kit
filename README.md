@@ -2,14 +2,14 @@
 
 ## gRPC Server
 
-An lightweight `gRPC Server` for embeding to lift off declaring basic of gRPC server.
+An lightweight `gRPC Server` for embedding to lift off declaring basic of gRPC server.
 
 ### `GrpcServer` struct
 
 - `name`: Name of the server.
 - `host`: Host to bind on.
 - `port`: Port to listen on
-- `gprpcRegisterHandler`: Provide an `*grpc.Server` as parameter to register.
+- `grpcRegisterHandler`: Provide an `*grpc.Server` as parameter to register.
 - `server`: An `*grpc.Server` object.
 - `serverOpts`: Options to pass to `server`.
 
@@ -17,17 +17,17 @@ An lightweight `gRPC Server` for embeding to lift off declaring basic of gRPC se
 
 - `WithHost`
 - `WithPort`
-- `WithGprpcRegister`
+- `WithGrpcRegister`
 
 ### `GrpcServer` methods
 
 - `ServeTCP`: start the server by HTTP2.
 
-## gRPC Getway
+## gRPC Gateway
 
-An lightweight `gRPC Getway` for embeding to lift off declaring basic of gRPC getway server.
+An lightweight `gRPC Gateway` for embedding to lift off declaring basic of gRPC getaway server.
 
-### `GrpcGetwayServer` struct
+### `GrpcGatewayServer` struct
 
 - `name`: Name of the server.
 - `host`: Host to bind on.
@@ -37,13 +37,13 @@ An lightweight `gRPC Getway` for embeding to lift off declaring basic of gRPC ge
 - `handler`: An `http.Handler` HTTP handler, commonly to add middleware.
 - `server`: An `http.Server` object.
 
-### `GrpcGetwayServer` decorators methods
+### `GrpcGatewayServer` decorators methods
 
 - `WithHost`
 - `WithPort`
-- `WithHTTPHandler`: To add an HTTP hadler to server.
-- `WithChainHTTPHandler`: To add mutiple HTTP hadlers to server.
+- `WithHTTPHandler`: To add an HTTP handler to server.
+- `WithChainHTTPHandler`: To add multiple HTTP handlers to server.
 
-### `GrpcGetwayServer` methods
+### `GrpcGatewayServer` methods
 
 - `Serve`: start the server.

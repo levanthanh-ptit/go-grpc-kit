@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc"
 )
 
+// RegisterGrpcFunc registering handler type
 type RegisterGrpcFunc func(server *grpc.Server) error
 
 // GrpcServer server object
@@ -16,7 +17,7 @@ type GrpcServer struct {
 	host string
 	port string
 
-	gprpcRegisterHandler RegisterGrpcFunc
+	grpcRegisterHandler RegisterGrpcFunc
 
 	server     *grpc.Server
 	serverOpts []grpc.ServerOption
@@ -41,15 +42,15 @@ func (s *GrpcServer) WithPort(port string) *GrpcServer {
 	return s
 }
 
-// WithGprpcRegister add host
-func (s *GrpcServer) WithGprpcRegister(handler RegisterGrpcFunc) *GrpcServer {
-	s.gprpcRegisterHandler = handler
+// WithGrpcRegister add host
+func (s *GrpcServer) WithGrpcRegister(handler RegisterGrpcFunc) *GrpcServer {
+	s.grpcRegisterHandler = handler
 	return s
 }
 
 // registerGrpc attach gRPC
 func (s *GrpcServer) registerGrpc() (err error) {
-	err = s.gprpcRegisterHandler(s.server)
+	err = s.grpcRegisterHandler(s.server)
 	return
 }
 

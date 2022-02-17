@@ -12,8 +12,8 @@ import (
 // ClientRegisterFunc ...
 type ClientRegisterFunc func(gwmux *runtime.ServeMux) error
 
-// GrpcGetwayServer server object
-type GrpcGetwayServer struct {
+// GrpcGatewayServer server object
+type GrpcGatewayServer struct {
 	name string
 	host string
 	port string
@@ -25,10 +25,10 @@ type GrpcGetwayServer struct {
 	server  *http.Server
 }
 
-// NewGrpcGetwayServer constructor
-func NewGrpcGetwayServer(name string) *GrpcGetwayServer {
+// NewGrpcGatewayServer constructor
+func NewGrpcGatewayServer(name string) *GrpcGatewayServer {
 	gwmux := runtime.NewServeMux()
-	return &GrpcGetwayServer{
+	return &GrpcGatewayServer{
 		name:    name,
 		gwmux:   gwmux,
 		handler: gwmux,
@@ -36,25 +36,25 @@ func NewGrpcGetwayServer(name string) *GrpcGetwayServer {
 }
 
 // WithHost add host
-func (s *GrpcGetwayServer) WithHost(host string) *GrpcGetwayServer {
+func (s *GrpcGatewayServer) WithHost(host string) *GrpcGatewayServer {
 	s.host = host
 	return s
 }
 
 // WithPort add host
-func (s *GrpcGetwayServer) WithPort(port string) *GrpcGetwayServer {
+func (s *GrpcGatewayServer) WithPort(port string) *GrpcGatewayServer {
 	s.port = port
 	return s
 }
 
 // WithClientRegister add client register handler
-func (s *GrpcGetwayServer) WithClientRegister(handler ClientRegisterFunc) *GrpcGetwayServer {
+func (s *GrpcGatewayServer) WithClientRegister(handler ClientRegisterFunc) *GrpcGatewayServer {
 	s.clientRegisterHandler = handler
 	return s
 }
 
 // GetServer getter
-func (s *GrpcGetwayServer) GetServer() *http.Server {
+func (s *GrpcGatewayServer) GetServer() *http.Server {
 	return s.server
 }
 
@@ -62,13 +62,13 @@ func (s *GrpcGetwayServer) GetServer() *http.Server {
 type AddHandlerFunc func(http.Handler) http.Handler
 
 // WithHTTPHandler add handler
-func (s *GrpcGetwayServer) WithHTTPHandler(handlerFunc AddHandlerFunc) *GrpcGetwayServer {
+func (s *GrpcGatewayServer) WithHTTPHandler(handlerFunc AddHandlerFunc) *GrpcGatewayServer {
 	s.handler = handlerFunc(s.handler)
 	return s
 }
 
 // WithChainHTTPHandler add handler
-func (s *GrpcGetwayServer) WithChainHTTPHandler(handlerFuncs []AddHandlerFunc) *GrpcGetwayServer {
+func (s *GrpcGatewayServer) WithChainHTTPHandler(handlerFuncs []AddHandlerFunc) *GrpcGatewayServer {
 	for _, handlerFunc := range handlerFuncs {
 		s.handler = handlerFunc(s.handler)
 	}
@@ -76,7 +76,7 @@ func (s *GrpcGetwayServer) WithChainHTTPHandler(handlerFuncs []AddHandlerFunc) *
 }
 
 // registerGrpcClient attach gRPC
-func (s *GrpcGetwayServer) registerGrpcClient() (err error) {
+func (s *GrpcGatewayServer) registerGrpcClient() (err error) {
 	if s.clientRegisterHandler == nil {
 		err = errors.New("must implement client register handler")
 		return
@@ -86,7 +86,7 @@ func (s *GrpcGetwayServer) registerGrpcClient() (err error) {
 }
 
 // makeServer prepare gRPC server
-func (s *GrpcGetwayServer) makeServer() (err error) {
+func (s *GrpcGatewayServer) makeServer() (err error) {
 	err = s.registerGrpcClient()
 	if err != nil {
 		return
@@ -99,7 +99,7 @@ func (s *GrpcGetwayServer) makeServer() (err error) {
 }
 
 // Serve run server
-func (s *GrpcGetwayServer) Serve() (err error) {
+func (s *GrpcGatewayServer) Serve() (err error) {
 	err = s.makeServer()
 	if err != nil {
 		return
