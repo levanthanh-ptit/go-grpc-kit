@@ -8,18 +8,16 @@ import (
 	"google.golang.org/grpc"
 )
 
-// RegisterGrpcFunc registering handler type
-type RegisterGrpcFunc func(server *grpc.Server) error
+// RegisterFunc registering handler type
+type RegisterFunc func(server *grpc.Server) error
 
 // GrpcServer server object
 type GrpcServer struct {
 	name string
-	host string
-	port string
 
-	grpcRegisterHandler RegisterGrpcFunc
+	registerHandler RegisterFunc
 
-	server     *grpc.Server
+	Server     *grpc.Server
 	serverOpts []grpc.ServerOption
 }
 
@@ -30,50 +28,39 @@ func NewGrpcServer(name string) *GrpcServer {
 	}
 }
 
-// WithHost add host
-func (s *GrpcServer) WithHost(host string) *GrpcServer {
-	s.host = host
+// WithRegister injection method for gRPC server registration
+func (s *GrpcServer) WithRegister(handler RegisterFunc) *GrpcServer {
+	s.registerHandler = handler
 	return s
 }
 
-// WithPort add host
-func (s *GrpcServer) WithPort(port string) *GrpcServer {
-	s.port = port
+// WithOptions injection method for gRPC server options, middlewares,...
+func (s *GrpcServer) WithOptions(options ...grpc.ServerOption) *GrpcServer {
+	s.serverOpts = append(s.serverOpts, options...)
 	return s
-}
-
-// WithGrpcRegister add host
-func (s *GrpcServer) WithGrpcRegister(handler RegisterGrpcFunc) *GrpcServer {
-	s.grpcRegisterHandler = handler
-	return s
-}
-
-// registerGrpc attach gRPC
-func (s *GrpcServer) registerGrpc() (err error) {
-	err = s.grpcRegisterHandler(s.server)
-	return
 }
 
 // makeServer prepare gRPC server
 func (s *GrpcServer) makeServer() (err error) {
-	s.server = grpc.NewServer(s.serverOpts...)
-	err = s.registerGrpc()
+	s.Server = grpc.NewServer(s.serverOpts...)
+	// attach gRPC
+	err = s.registerHandler(s.Server)
 	return
 }
 
 // ServeTCP run server in TCP
-func (s *GrpcServer) ServeTCP() (err error) {
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", s.host, s.port))
+func (s *GrpcServer) ServeTCP(host string, port int) (err error) {
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%v", host, port))
 	if err != nil {
-		log.Printf("%s gRPC Server - Failed to listen on: %s:%s", s.name, s.host, s.port)
+		log.Printf("%s gRPC Server - Failed to listen on: %s:%v", s.name, host, port)
 		return
 	}
 	err = s.makeServer()
 	if err != nil {
-		log.Println("gRPC Server - Failed to create gRPC server")
+		log.Printf("%s gRPC Server - Failed to create gRPC server", s.name)
 		return
 	}
-	log.Printf("%s gRPC Server - Started on %s:%s", s.name, s.host, s.port)
-	err = s.server.Serve(lis)
+	log.Printf("%s gRPC Server - Started on %s:%v", s.name, host, port)
+	err = s.Server.Serve(lis)
 	return
 }
