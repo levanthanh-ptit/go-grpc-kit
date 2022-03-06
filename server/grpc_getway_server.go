@@ -9,7 +9,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 )
 
-// ClientRegisterFunc ...
+// ClientRegisterFunc injector function for runtime.ServeMux register
 type ClientRegisterFunc func(gwmux *runtime.ServeMux) error
 
 // GrpcGatewayServer server object
@@ -53,7 +53,7 @@ func (s *GrpcGatewayServer) WithHandlers(handlerFuncs ...AddHandlerFunc) *GrpcGa
 // registerGrpcClient attach gRPC
 func (s *GrpcGatewayServer) registerGrpcClient() (err error) {
 	if s.clientRegisterHandler == nil {
-		err = errors.New("must implement client register handler")
+		err = errors.New("Must implement client register handler")
 		return
 	}
 	err = s.clientRegisterHandler(s.gwmux)

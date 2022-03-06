@@ -7,17 +7,14 @@ An lightweight `gRPC Server` for embedding to lift off declaring basic of gRPC s
 ### `GrpcServer` struct
 
 - `name`: Name of the server.
-- `host`: Host to bind on.
-- `port`: Port to listen on
-- `grpcRegisterHandler`: Provide an `*grpc.Server` as parameter to register.
-- `server`: An `*grpc.Server` object.
+- `registerHandler`: Injected function accepting a `*grpc.Server` as parameter to register.
+- `Server`: `*grpc.Server` object.
 - `serverOpts`: Options to pass to `server`.
 
 ### `GrpcServer` decorators methods
 
-- `WithHost`
-- `WithPort`
-- `WithGrpcRegister`
+- `WithRegister`: For inject `registerHandler` function.
+- `WithOptions`: Append options or middleware to `Server`.
 
 ### `GrpcServer` methods
 
@@ -30,19 +27,15 @@ An lightweight `gRPC Gateway` for embedding to lift off declaring basic of gRPC 
 ### `GrpcGatewayServer` struct
 
 - `name`: Name of the server.
-- `host`: Host to bind on.
-- `port`: Port to listen on
-- `clientRegisterHandler`: Provide an `*runtime.ServeMux` as parameter to register.
-- `gwmux`: An `*runtime.ServeMux` object.
-- `handler`: An `http.Handler` HTTP handler, commonly to add middleware.
-- `server`: An `http.Server` object.
+- `clientRegisterHandler`: Injected function accepting a `*runtime.ServeMux` as parameter to gRPC client registration.
+- `gwmux`: `*runtime.ServeMux` object.
+- `Handler`: `http.Handler` HTTP handler, commonly to add middleware.
+- `Server`: `http.Server` object.
 
 ### `GrpcGatewayServer` decorators methods
 
-- `WithHost`
-- `WithPort`
-- `WithHTTPHandler`: To add an HTTP handler to server.
-- `WithChainHTTPHandler`: To add multiple HTTP handlers to server.
+- `WithClientRegister`: For inject `clientRegisterHandler` function.
+- `WithHandlers`: To add handlers to `Server`.
 
 ### `GrpcGatewayServer` methods
 
